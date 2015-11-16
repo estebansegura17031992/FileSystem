@@ -50,9 +50,18 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                     return fs.cd(id,paquete.getParam()[1]);
                     
                 case "LS":
-                    break;
+                    System.out.println("LS ID: "+id);
+                    String[] files = fs.ls(id);
+                    String ls = "";
+                    for (int i = 0;  i < files.length; i++) {
+                        ls+="\n"+files[i];
+                    }
+                    return ls;
+                    
                 case "DU":
-                    break;
+                    System.out.println("DU ID: "+id);
+                    return fs.du(id, paquete.getParam()[1]);
+                    
                 default:
                     break;
         }

@@ -39,7 +39,7 @@ public class FileSystem {
         ClientSystem cs = this.fileSystems.get(user);
         Directory dir = new Directory(cs.current, name, cs.current.getAbsolutePath()+"/");
         cs.current.addFile(dir);
-        return "Directorio creado exitosamente";
+        return cs.current.getAbsolutePath();
     }
     
     
