@@ -22,7 +22,7 @@ public class Server {
              
             // Creamos un nuevo serivcio llamado cmd
             registry.rebind("cmd", message);
-            System.out.println("Servidor listo");
+            System.out.println("Servidor listo...");
         } catch (Exception e) {
             System.out.println(e);
         }
