@@ -43,6 +43,16 @@ public class FileSystem {
         return cs.current.getAbsolutePath();
     }
     
+    public String file(String user, String name, String content){
+        if(!this.fileSystems.containsKey(user))
+            return "Usuario no tiene un file system";
+        
+        ClientSystem cs = this.fileSystems.get(user);
+        File file = new File(cs.current, name, cs.current.getAbsolutePath()+"/");
+        cs.current.addFile(file);
+        file.setContent(content);
+        return "Archivo creado exitosamente";
+    }
     
     public String cd(String user, String path){
         if(!this.fileSystems.containsKey(user))
@@ -96,18 +106,40 @@ public class FileSystem {
             return "Tamaño de " + fs.getName() + " es " + fs.getSize();
         return "No existe el directorio/archivo con nombre " + Filename;
     }
-    public String file(String user, String name, String content){
+    
+    public String pwd(String user){
         if(!this.fileSystems.containsKey(user))
             return "Usuario no tiene un file system";
         
         ClientSystem cs = this.fileSystems.get(user);
-        File file = new File(cs.current, name, cs.current.getAbsolutePath()+"/");
-        cs.current.addFile(file);
-        file.setContent(content);
-        return "Archivo creado exitosamente";
+        return cs.current.getAbsolutePath();
     }
     
-    
+    public String[] cat(String user, String[] filenames){
+        if(!this.fileSystems.containsKey(user))
+            return new String[]{"Usuario no tiene un file system"};
+        
+        ArrayList<String> result = new ArrayList<>();
+        for(String file : filenames){
+            ClientSystem cs = this.fileSystems.get(user);
+            FileStruct fs = cs.current.find(file);
+            
+            if(fs == null){
+                result.add("Cat: " + file + " no existe");
+                continue;
+            }
+            
+            if(fs instanceof Directory)
+                result.add("Cat: " + file + " es un directorio");
+            else{
+                String content = "Cat " + file + ":\n";
+                content += ((File)fs).getContent();
+                result.add(content);
+            }
+        }
+        
+        return result.toArray(new String[filenames.length]);
+    }
     
     // test delete on final version
     public void test(String user){

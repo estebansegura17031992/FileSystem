@@ -104,6 +104,15 @@ public class Main {
         System.out.println(Arrays.toString(fs.ls("Me")));
         System.out.println(fs.cd("Me", "dir1"));
         System.out.println(Arrays.toString(fs.ls("Me")));
+        
+        fs.cd("Me", "dir2");
+        System.out.println("PWD: " + fs.pwd("Me"));
+        
+        fs.cd("Me", "../..");
+        System.out.println("CAT: " + Arrays.toString(fs.cat("Me", new String[]{"file1"})));
+        System.out.println("CAT: " + Arrays.toString(fs.cat("Me", new String[]{"file1", "file2"})));
+        
+        
     }
     
 }
