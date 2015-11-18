@@ -37,7 +37,8 @@ public class FileSystem {
             return "Usuario no tiene un file system";
         
         ClientSystem cs = this.fileSystems.get(user);
-        Directory dir = new Directory(cs.current, name, cs.current.getAbsolutePath()+"/");
+        String pathToDir = cs.current.getAbsolutePath() + ((cs.current.getParent() == null) ? "" : "/");
+        Directory dir = new Directory(cs.current, name, pathToDir);
         cs.current.addFile(dir);
         return cs.current.getAbsolutePath();
     }
@@ -57,7 +58,7 @@ public class FileSystem {
                     current = (Directory)current.getParent();
                     break;
                 case ".":
-                    current = (Directory)current;
+                    //current = (Directory)current;
                     break;
                 default:
                     Directory next = (Directory)current.find(pathItem);

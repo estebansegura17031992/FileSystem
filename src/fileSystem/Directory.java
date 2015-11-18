@@ -19,14 +19,6 @@ public class Directory extends FileStruct {
         return content;
     }
     
-    public String ls_root()
-    {
-        String list_content = "";
-        for (int i = 0; i < content.size(); i++) {
-            list_content+="\n"+content.get(i).getName();
-        }
-        return list_content;
-    }
     /**
      * @param content the content to set
      */
