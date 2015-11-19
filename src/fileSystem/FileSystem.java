@@ -103,7 +103,8 @@ public class FileSystem {
         FileStruct fs = cs.current.find(Filename);
         
         if(fs != null)
-            return "Tamaño de " + fs.getName() + " es " + fs.getSize();
+            //return "Tamaño de " + fs.getName() + " es " + fs.getSize();
+            return fs.getName()+" size: "+fs.getName();
         return "No existe el directorio/archivo con nombre " + Filename;
     }
     

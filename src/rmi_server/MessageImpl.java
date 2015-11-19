@@ -34,7 +34,6 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                         return "/";
                     else
                         return "Usuario ya tiene un file system";
-                    //System.out.println(fs.ls_root(id));
 		
                     
                 case "MKDIR":
@@ -43,8 +42,7 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                 El parámetro es el nombre del directorio. 
                 */
                     System.out.println("MKDIR ID: "+ id);
-                    fs.mkdir(id, paquete.getParam()[1]);
-                    break;
+                    return fs.mkdir(id, paquete.getParam()[1]);
                 case "CD":
                     System.out.println("CD ID: "+id);
                     return fs.cd(id,paquete.getParam()[1]);
@@ -53,14 +51,35 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                     System.out.println("LS ID: "+id);
                     String[] files = fs.ls(id);
                     String ls = "";
-                    for (int i = 0;  i < files.length; i++) {
-                        ls+="\n"+files[i];
-                    }
+                    for (int i = 0;  i < files.length; i++) 
+                        ls+=files[i]+"\n";
+                    
                     return ls;
                     
                 case "DU":
+                /*
+                Da el tamaño de un directorio o archivo. 
+                */
                     System.out.println("DU ID: "+id);
                     return fs.du(id, paquete.getParam()[1]);
+                case "PWD":
+                /*
+                Despliega el directorio actual
+                */
+                    System.out.println("PWD ID: "+id);
+                    return fs.pwd(paquete.getId_sesion());
+                    
+                case "CAT":
+                /*
+                Recibe como parámetro el nombre de uno o varios archivos y debe desplegar 
+                su contenido. 
+                */
+                    System.out.println("CAT ID: "+id);
+                    String cat="";
+                    String[] files_pwd = fs.cat(paquete.getId_sesion(),paquete.getParam());
+                    for (int i = 0;  i < files_pwd.length; i++) 
+                        cat+=files_pwd[i]+"\n";
+                    return cat;
                     
                 default:
                     break;
