@@ -100,7 +100,7 @@ public class Main {
         System.out.println(fs.cd("Me", "../../dir1/dir2"));
         System.out.println(fs.cd("Me", "../../dir3/dir4"));
         System.out.println(fs.cd("Me", "../.."));
-        System.out.println(fs.du("Me", "file2"));
+        System.out.println("DU: " + fs.du("Me", "file2"));
         System.out.println(Arrays.toString(fs.ls("Me")));
         System.out.println(fs.cd("Me", "dir1"));
         System.out.println(Arrays.toString(fs.ls("Me")));
@@ -109,9 +109,15 @@ public class Main {
         System.out.println("PWD: " + fs.pwd("Me"));
         
         fs.cd("Me", "../..");
+        fs.test("Me", "file1");
         System.out.println("CAT: " + Arrays.toString(fs.cat("Me", new String[]{"file1"})));
         System.out.println("CAT: " + Arrays.toString(fs.cat("Me", new String[]{"file1", "file2"})));
         
+        System.out.println("split test: " + Arrays.toString("/file1".split("/")));
+        System.out.println("MV: " + fs.mv("Me", "/file1", "/dir1/file1", true));
+        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+        fs.cd("Me", "dir1");
+        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
         
     }
     

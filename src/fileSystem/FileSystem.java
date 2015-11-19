@@ -1,6 +1,7 @@
 package fileSystem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -48,7 +49,8 @@ public class FileSystem {
             return "Usuario no tiene un file system";
         
         ClientSystem cs = this.fileSystems.get(user);
-        File file = new File(cs.current, name, cs.current.getAbsolutePath()+"/");
+        String pathToFile = cs.current.getAbsolutePath() + ((cs.current.getParent() == null) ? "" : "/");
+        File file = new File(cs.current, name, pathToFile);
         cs.current.addFile(file);
         file.setContent(content);
         return "Archivo creado exitosamente";
@@ -142,10 +144,89 @@ public class FileSystem {
         return result.toArray(new String[filenames.length]);
     }
     
+//    public String cpyRR(String user, String routeOrigin, String routeDestination){
+//        
+//    }
+//    
+//    public String cpyVR(String user, String routeOrigin, String routeDestination){
+//        
+//    }
+//    
+//    public String cpyVV(String user, String routeOrigin, String routeDestination){
+//        
+//    }
+    
+    // agregar relative paths
+    //getLastDir -> cs y adentro decidir si current o root dependiendo de la ruta
+    public String mv(String user, String routeOrigin, String routeDestination, Boolean force){
+        if(!this.fileSystems.containsKey(user))
+            return "Usuario no tiene un file system";
+        
+        ClientSystem cs = this.fileSystems.get(user);
+        String[] originRoute = routeOrigin.split("/");
+        String originFilename = originRoute[originRoute.length-1];
+        Directory originParentDir = getLastDir(cs.root, originRoute);
+        if(originParentDir == null)
+            return "Imposible llegar al archivo o directorio";
+        FileStruct originFile = originParentDir.find(originFilename);
+        if(originFile == null)
+            return "El archivo o directorio " + originFilename + "no existe";
+        
+        String[] destinationRoute = routeDestination.split("/");
+        String destinationDirectoryname = destinationRoute[destinationRoute.length-1];
+        Directory destinationDir = getLastDir(cs.root, destinationRoute);
+        if(destinationDir == null)
+            return "Imposible llegar al directorio";
+        
+        FileStruct fileExist = destinationDir.find(destinationDirectoryname);
+        if(fileExist != null && !force)
+            return "Ya existe un archivo o directorio con ese nombre, utilice -f para sobreescribir";
+        
+        moveFile(originFile, destinationDir, fileExist != null);
+        
+        return "El archivo o directorio " + originFilename + " se encuentra en " + routeDestination;
+    }
+    
+    
+    
+    private Directory getLastDir(Directory root, String[] route){
+        Directory current = root;
+        
+        for(int i=0; i<route.length-1; i++){
+            if(route[i].equals(""))
+                continue;
+                    
+            FileStruct next = current.find(route[i]);
+            
+            if(!(next instanceof Directory))
+                return null;
+            
+            current = (Directory)next;
+        }
+        
+        return current;
+    }
+    
+    private void moveFile(FileStruct source, Directory destination, Boolean exist){
+        if(exist)
+            destination.deleteFile(source.getName());
+        
+        String pathToFile = destination.getAbsolutePath() + "/" + source.getName();
+        ((Directory)source.getParent()).deleteFile(source.getName());
+        source.setParent(destination);
+        source.setPath(pathToFile);
+        destination.addFile(source);
+    }
+    
     // test delete on final version
     public void test(String user){
         ClientSystem cs = this.fileSystems.get(user);
         System.out.println("Root " + cs.root.getSize());
+    }
+    public void test(String user, String testString){
+        ClientSystem cs = this.fileSystems.get(user);
+        FileStruct fs = cs.current.find(testString);
+        System.out.println("absolute path " + fs.getAbsolutePath());
     }
     
     private class ClientSystem{
