@@ -104,7 +104,7 @@ public class FileSystem {
         
         if(fs != null)
             //return "Tamaño de " + fs.getName() + " es " + fs.getSize();
-            return fs.getName()+" size: "+fs.getName();
+            return fs.getName()+" tamaño: "+fs.getSize();
         return "No existe el directorio/archivo con nombre " + Filename;
     }
     
