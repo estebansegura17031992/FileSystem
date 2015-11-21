@@ -96,6 +96,7 @@ public class Main {
         fs.mkdir("Me", "dir3");
         System.out.println(fs.cd("Me", "dir3"));
         fs.mkdir("Me", "dir4");
+        fs.mkdir("Me", "dir5");
         System.out.println(fs.cd("Me", "dir4"));
         System.out.println(fs.cd("Me", "../../dir1/dir2"));
         System.out.println(fs.cd("Me", "../../dir3/dir4"));
@@ -119,6 +120,29 @@ public class Main {
         fs.cd("Me", "dir1");
         System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
         
+        System.out.println("DU: " + fs.du("Me", ""));
+        System.out.println("RM: " + Arrays.toString(fs.rm("Me", new String[]{"file1"}, true)));
+        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+        System.out.println("DU: " + fs.du("Me", ""));
+        fs.cd("Me", "..");
+        
+        fs.file("Me", "file3", "nuevo archivo"); //13 char
+        fs.test("Me");
+        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+        System.out.println("MV: " + fs.mv("Me", "/file3", "/file4", true));
+        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+        
+        fs.cd("Me", "dir1");
+        fs.file("Me", "file4", "filename repetido");
+        fs.file("Me", "asdf.doc", ".doc file");
+        fs.cd("Me", "..");
+        fs.file("Me", "otro.doc", ".doc file");
+        fs.mkdir("Me", "dir2");
+        System.out.println("FIND:" + Arrays.toString(fs.find("Me", "file4")));
+        System.out.println("FIND:" + Arrays.toString(fs.find("Me", "*.doc")));
+        System.out.println("FIND:" + Arrays.toString(fs.find("Me", "dir2")));
+        
+        System.out.println("TREE:" + fs.tree("Me"));
     }
     
 }

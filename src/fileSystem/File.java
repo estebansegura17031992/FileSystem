@@ -25,4 +25,19 @@ public class File extends FileStruct {
         //add size to dir
         ((Directory)this.getParent()).addSize(getSize());
     }
+
+    @Override
+    public void clean() {
+        this.setParent(null);
+    }
+    
+    @Override
+    public String printTree() {
+        return printTree("", true);
+    }
+
+    @Override
+    protected String printTree(String prefix, boolean isTail) {
+        return "\n" + prefix + (isTail ? "└─ " : "├─ ") + this.getName();
+    }
 }

@@ -102,11 +102,14 @@ public class FileSystem {
             return "Usuario no tiene un file system";
         
         ClientSystem cs = this.fileSystems.get(user);
-        FileStruct fs = cs.current.find(Filename);
         
+        if(Filename.equals(""))
+            return cs.current.getName() + " tamaño: " + cs.current.getSize();
+        
+        FileStruct fs = cs.current.find(Filename);
         if(fs != null)
             //return "Tamaño de " + fs.getName() + " es " + fs.getSize();
-            return fs.getName()+" size: "+fs.getName();
+            return fs.getName()+" tamaño: "+fs.getSize();
         return "No existe el directorio/archivo con nombre " + Filename;
     }
     
@@ -122,20 +125,20 @@ public class FileSystem {
         if(!this.fileSystems.containsKey(user))
             return new String[]{"Usuario no tiene un file system"};
         
+        ClientSystem cs = this.fileSystems.get(user);
         ArrayList<String> result = new ArrayList<>();
         for(String file : filenames){
-            ClientSystem cs = this.fileSystems.get(user);
             FileStruct fs = cs.current.find(file);
             
             if(fs == null){
-                result.add("Cat: " + file + " no existe");
+                result.add("CAT: " + file + " no existe");
                 continue;
             }
             
             if(fs instanceof Directory)
-                result.add("Cat: " + file + " es un directorio");
+                result.add("CAT: " + file + " es un directorio");
             else{
-                String content = "Cat " + file + ":\n";
+                String content = "CAT: " + file + ":\n";
                 content += ((File)fs).getContent();
                 result.add(content);
             }
@@ -156,8 +159,6 @@ public class FileSystem {
 //        
 //    }
     
-    // agregar relative paths
-    //getLastDir -> cs y adentro decidir si current o root dependiendo de la ruta
     public String mv(String user, String routeOrigin, String routeDestination, Boolean force){
         if(!this.fileSystems.containsKey(user))
             return "Usuario no tiene un file system";
@@ -165,7 +166,7 @@ public class FileSystem {
         ClientSystem cs = this.fileSystems.get(user);
         String[] originRoute = routeOrigin.split("/");
         String originFilename = originRoute[originRoute.length-1];
-        Directory originParentDir = getLastDir(cs.root, originRoute);
+        Directory originParentDir = getLastDir(cs, originRoute);
         if(originParentDir == null)
             return "Imposible llegar al archivo o directorio";
         FileStruct originFile = originParentDir.find(originFilename);
@@ -173,24 +174,70 @@ public class FileSystem {
             return "El archivo o directorio " + originFilename + "no existe";
         
         String[] destinationRoute = routeDestination.split("/");
-        String destinationDirectoryname = destinationRoute[destinationRoute.length-1];
-        Directory destinationDir = getLastDir(cs.root, destinationRoute);
+        String destinationFilename = destinationRoute[destinationRoute.length-1];
+        Directory destinationDir = getLastDir(cs, destinationRoute);
         if(destinationDir == null)
             return "Imposible llegar al directorio";
         
-        FileStruct fileExist = destinationDir.find(destinationDirectoryname);
+        FileStruct fileExist = destinationDir.find(destinationFilename);
         if(fileExist != null && !force)
             return "Ya existe un archivo o directorio con ese nombre, utilice -f para sobreescribir";
         
+        originFile.setName(destinationFilename);
         moveFile(originFile, destinationDir, fileExist != null);
         
         return "El archivo o directorio " + originFilename + " se encuentra en " + routeDestination;
     }
     
+    public String[] rm(String user, String[] filenames, Boolean force){
+        if(!this.fileSystems.containsKey(user))
+            return new String[]{"Usuario no tiene un file system"};
+        
+        ClientSystem cs = this.fileSystems.get(user);
+        ArrayList<String> result = new ArrayList<>();
+        for(String file : filenames){
+            FileStruct fs = cs.current.find(file);
+            
+            if(fs == null){
+                result.add("RM: " + file + " no existe");
+                continue;
+            }
+            
+            if(fs instanceof File || force){
+                cs.current.deleteFile(file);
+                result.add("RM: " + file + " eliminado");
+            }
+            else
+                result.add("RM: " + file + " no se puede eliminar use la opcion -r");
+        }
+        
+        return result.toArray(new String[filenames.length]);
+        
+    }
     
+    public String[] find(String user, String regex){
+        if(!this.fileSystems.containsKey(user))
+            return new String[]{"Usuario no tiene un file system"};
+        
+        String customRegex = regex.replace("*", ".*?");
+        ClientSystem cs = this.fileSystems.get(user);
+        
+        ArrayList<String> result = cs.current.findAll(customRegex);
+        
+        return result.toArray(new String[result.size()]);
+    }
     
-    private Directory getLastDir(Directory root, String[] route){
-        Directory current = root;
+    public String tree(String user){
+        if(!this.fileSystems.containsKey(user))
+            return "Usuario no tiene un file system";
+        
+        ClientSystem cs = this.fileSystems.get(user);
+        return cs.current.printTree();
+    }
+    
+    private Directory getLastDir(ClientSystem cs, String[] route){
+        Boolean failed = false;
+        Directory current = cs.current;
         
         for(int i=0; i<route.length-1; i++){
             if(route[i].equals(""))
@@ -198,10 +245,33 @@ public class FileSystem {
                     
             FileStruct next = current.find(route[i]);
             
-            if(!(next instanceof Directory))
-                return null;
+            if(next == null){
+                failed = true;
+                break;     
+            }
+            if(!(next instanceof Directory)){
+                failed = true;
+                break;     
+            }
             
             current = (Directory)next;
+        }
+        
+        if(failed){
+            current = cs.root;
+            for(int i=0; i<route.length-1; i++){
+                if(route[i].equals(""))
+                    continue;
+
+                FileStruct next = current.find(route[i]);
+
+                if(next == null)
+                    return null;     
+                if(!(next instanceof Directory))
+                    return null;   
+
+                current = (Directory)next;
+            }
         }
         
         return current;
@@ -211,11 +281,16 @@ public class FileSystem {
         if(exist)
             destination.deleteFile(source.getName());
         
-        String pathToFile = destination.getAbsolutePath() + "/" + source.getName();
+        String pathToFile = destination.getAbsolutePath() + ((destination.getParent() == null) ? "" : "/");
         ((Directory)source.getParent()).deleteFile(source.getName());
         source.setParent(destination);
         source.setPath(pathToFile);
         destination.addFile(source);
+        
+        System.out.println(pathToFile);
+        //"/"
+        System.out.println(source.getRelativePath());
+        System.out.println(source.getAbsolutePath());
     }
     
     // test delete on final version

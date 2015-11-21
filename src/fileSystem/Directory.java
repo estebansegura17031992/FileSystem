@@ -42,7 +42,7 @@ public class Directory extends FileStruct {
         if(file != null){
             content.remove(file);
             subSize(file.getSize());
-            
+            file.clean();
             return Messages.SUCCESS;
         }
         return Messages.FILENOTFOUND;
@@ -61,5 +61,63 @@ public class Directory extends FileStruct {
         }
         return null;
     }
+
+    @Override
+    public void clean() {
+        this.setParent(null);
+        
+        this.content.stream().forEach((file) -> {
+            file.clean();
+        });
+    }
     
+    public ArrayList<String> getPreOrderTraversal() {
+        ArrayList<String> preOrder = new ArrayList<>();
+        buildPreOrder(this, preOrder);
+        printTree();
+        return preOrder;
+    }
+    
+    private void buildPreOrder(FileStruct node, ArrayList<String> preOrder) {
+        preOrder.add(node.getName());
+        if(node instanceof Directory){
+            ((Directory)node).content.stream().forEach((child) -> {
+                buildPreOrder(child, preOrder);
+            });
+        }
+    }
+    
+    public ArrayList<String> findAll(String regex){
+        ArrayList<String> result = new ArrayList<>();
+        findAll(result, regex);
+        return result;
+    }
+    
+    private void findAll(ArrayList<String> filesList, String regex){
+        content.stream().forEach((file) -> {
+            if(file.getName().matches(regex))
+                filesList.add(file.getAbsolutePath());
+            if (file instanceof Directory) {
+                filesList.addAll(((Directory)file).findAll(regex));
+            }
+        });
+    }
+    
+    @Override
+    public String printTree() {
+        return printTree("", true);
+    }
+
+    @Override
+    protected String printTree(String prefix, boolean isTail) {
+        String result = "\n" + prefix + (isTail ? "└─ " : "├─ ") + this.getName();
+        
+        for (int i = 0; i < content.size() - 1; i++) {
+            result += content.get(i).printTree(prefix + (isTail ? "    " : "│   "), false);
+        }
+        if (content.size() > 0) {
+            result += content.get(content.size() - 1).printTree(prefix + (isTail ? "    " : "│   "), true);
+        }
+        return result;
+    }
 }

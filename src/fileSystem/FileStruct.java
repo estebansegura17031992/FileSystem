@@ -5,11 +5,13 @@
  */
 package fileSystem;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Adonis
  */
-public class FileStruct {
+public abstract class FileStruct {
     
     private FileStruct parent;
     private String name;
@@ -86,4 +88,7 @@ public class FileStruct {
         this.size = size;
     }
     
+    public abstract void clean();
+    public abstract String printTree();
+    protected abstract String printTree(String prefix, boolean isTail);
 }
