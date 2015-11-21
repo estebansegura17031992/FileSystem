@@ -1,9 +1,12 @@
 package fileSystem;
 
+import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 /**
  *
  * @author Adonis
@@ -50,7 +53,7 @@ public class FileSystem {
         
         ClientSystem cs = this.fileSystems.get(user);
         String pathToFile = cs.current.getAbsolutePath() + ((cs.current.getParent() == null) ? "" : "/");
-        File file = new File(cs.current, name, pathToFile);
+        MyFile file = new MyFile(cs.current, name, pathToFile);
         cs.current.addFile(file);
         file.setContent(content);
         return "Archivo creado exitosamente";
@@ -136,7 +139,7 @@ public class FileSystem {
                 result.add("Cat: " + file + " es un directorio");
             else{
                 String content = "Cat " + file + ":\n";
-                content += ((File)fs).getContent();
+                content += ((MyFile)fs).getContent();
                 result.add(content);
             }
         }
@@ -144,17 +147,88 @@ public class FileSystem {
         return result.toArray(new String[filenames.length]);
     }
     
-//    public String cpyRR(String user, String routeOrigin, String routeDestination){
+    public String cpyVR(String user, String routeOrigin, String routeDestination) throws IOException{
+        if(!this.fileSystems.containsKey(user))
+            return "Usuario no tiene un file system";
+        
+        ClientSystem cs = this.fileSystems.get(user);
+        File real_file = new File(routeOrigin);
+        if(real_file.isDirectory())
+        {
+            mkdir(user, real_file.getName());
+            File[] files = real_file.listFiles();
+            for(int i = 0;i<files.length;i++)
+            {
+                if(files[i].isDirectory())
+                {
+                    String current_route="";
+                    if(cs.current.getAbsolutePath().equals("/"))
+                        current_route = (cs.current.getAbsolutePath()+real_file.getName()).substring(1);
+                    else
+                        current_route = (cs.current.getAbsolutePath()+"/"+real_file.getName()).substring(1);
+                    String state = cd(user,current_route);
+                    String destination_route = cs.current.getAbsolutePath();
+                    String origin_file = files[i].getAbsolutePath();
+                    //mkdir(user, real_file.getName());
+                    //cd(user, current_route);
+                    
+                    cpyVR(user, origin_file, "/"+current_route);
+                }
+                else
+                {
+                    String current_route = cs.current.getAbsolutePath();
+                    cd(user, current_route);
+                    String origin_file = files[i].getAbsolutePath();
+                    cpyVR(user, origin_file, current_route);
+                }
+                //System.out.println(""+files[i].getName());
+                
+            }
+        }
+        else
+        {
+            String current_route = cs.current.getAbsolutePath();
+            String data = read_file(routeOrigin);
+            cd(user,routeDestination);
+            String name_file = real_file.getName();
+            file(user,name_file , data);
+        }
+        return "";
+    }
+//    
+//    public String cpyRV(String user, String routeOrigin, String routeDestination){
 //        
 //    }
 //    
-//    public String cpyVR(String user, String routeOrigin, String routeDestination){
-//        
-//    }
-//    
-//    public String cpyVV(String user, String routeOrigin, String routeDestination){
-//        
-//    }
+    public String cpyVV(String user, String routeOrigin, String routeDestination,
+                        Boolean force){
+        if(!this.fileSystems.containsKey(user))
+            return "Usuario no tiene un file system";
+        
+        ClientSystem cs = this.fileSystems.get(user);
+        String[] originRoute = routeOrigin.split("/");
+        String originFilename = originRoute[originRoute.length-1];
+        Directory originParentDir = getLastDir(cs.root, originRoute);
+        if(originParentDir == null)
+            return "Imposible llegar al archivo o directorio";
+        FileStruct originFile = originParentDir.find(originFilename);
+        if(originFile == null)
+            return "El archivo o directorio " + originFilename + "no existe";
+        
+        String[] destinationRoute = routeDestination.split("/");
+        String destinationDirectoryname = destinationRoute[destinationRoute.length-1];
+        Directory destinationDir = getLastDir(cs.root, destinationRoute);
+        if(destinationDir == null)
+            return "Imposible llegar al directorio";
+        
+        FileStruct fileExist = destinationDir.find(destinationDirectoryname);
+        if(fileExist != null && !force)
+            return "Ya existe un archivo o directorio con ese nombre, utilice -f para sobreescribir";
+        
+        copyFile(originFile, destinationDir, fileExist != null);
+        
+        return "El archivo o directorio " + originFilename + " se encuentra en " + routeDestination;
+    }
     
     // agregar relative paths
     //getLastDir -> cs y adentro decidir si current o root dependiendo de la ruta
@@ -218,6 +292,37 @@ public class FileSystem {
         destination.addFile(source);
     }
     
+    private void copyFile(FileStruct source, Directory destination, Boolean exist)
+    {
+        if(exist)
+            destination.deleteFile(source.getName());
+        
+        String pathToFile = destination.getAbsolutePath() + "/" + source.getName();
+        source.setParent(destination);
+        source.setPath(pathToFile);
+        destination.addFile(source);
+    }
+    
+    private String read_file(String real_route) throws IOException
+    {
+        BufferedReader br = new BufferedReader(new FileReader(real_route));
+        try {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            String text = sb.toString();
+            return  text;
+            } finally {
+                br.close();
+            }
+        
+        
+    }
     // test delete on final version
     public void test(String user){
         ClientSystem cs = this.fileSystems.get(user);

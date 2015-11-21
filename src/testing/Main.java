@@ -6,6 +6,7 @@
 package testing;
 
 import fileSystem.*;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -17,7 +18,7 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // TODO code application logic here
         String test = "/";
         String test2 = "/dir1/dir2";
@@ -45,19 +46,19 @@ public class Main {
         
         System.out.println(dir1.getName());
         
-        File file1 = new File(dir1, "file1.txt", dir1.getAbsolutePath()+"/");
+        MyFile file1 = new MyFile(dir1, "file1.txt", dir1.getAbsolutePath()+"/");
         dir1.addFile(file1);  
         file1.setContent("noob");
         
-        File file2 = new File(dir1, "file2.txt", dir1.getAbsolutePath()+"/");
+        MyFile file2 = new MyFile(dir1, "file2.txt", dir1.getAbsolutePath()+"/");
         dir1.addFile(file2);
         file2.setContent("prueba");
         
-        File file3 = new File(dir2, "file3.txt", dir2.getAbsolutePath()+"/");
+        MyFile file3 = new MyFile(dir2, "file3.txt", dir2.getAbsolutePath()+"/");
         dir2.addFile(file3);
         file3.setContent("txt");
         
-        File file4 = new File(dir3, "file4.txt", dir3.getAbsolutePath()+"/");
+        MyFile file4 = new MyFile(dir3, "file4.txt", dir3.getAbsolutePath()+"/");
         dir3.addFile(file4);
         file4.setContent("otro");
         
@@ -119,6 +120,13 @@ public class Main {
         fs.cd("Me", "dir1");
         System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
         
+        System.out.println("CPVV:" +fs.cpyVV("Me", "/dir1/file1", "/file1", true));
+        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+        fs.cd("Me", "..");
+        System.out.println("LS: "+Arrays.toString(fs.ls("Me")));
+        System.out.println("CPV: "+fs.cpyVR("Me", "/home/esteban/Desktop", "/"));
+        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+        System.out.println("CAT: "+ Arrays.toString(fs.cat("Me", new String[]{"example.pl"})));
     }
     
 }

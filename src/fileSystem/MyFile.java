@@ -1,10 +1,10 @@
 package fileSystem;
 
-public class File extends FileStruct {
+public class MyFile extends FileStruct {
     
     private String content;
     
-    public File(Directory parent, String name, String path){
+    public MyFile(Directory parent, String name, String path){
         super(parent, name, path, 0);
         this.content = "";
     }
