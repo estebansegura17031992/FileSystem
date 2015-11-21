@@ -46,7 +46,10 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                 case "CD":
                     System.out.println("CD ID: "+id);
                     return fs.cd(id,paquete.getParam()[1]);
-                    
+                   
+                case "FILE":
+                    System.out.println("FILE ID: "+id);
+                    return fs.file(id, paquete.getParam()[1], paquete.getParam()[2]);
                 case "LS":
                     System.out.println("LS ID: "+id);
                     String[] files = fs.ls(id);
@@ -76,11 +79,46 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                 */
                     System.out.println("CAT ID: "+id);
                     String cat="";
-                    String[] files_pwd = fs.cat(paquete.getId_sesion(),paquete.getParam());
-                    for (int i = 0;  i < files_pwd.length; i++) 
-                        cat+=files_pwd[i]+"\n";
+                    String[] files_cat = fs.cat(paquete.getId_sesion(),paquete.getParam());
+                    for (int i = 1;  i < files_cat.length; i++) 
+                        cat+=files_cat[i]+"\n";
                     return cat;
                     
+                case "CPYRV":
+                    System.out.println("CPYRV ID: "+id);
+                    try{
+                    String files_cpyrv = fs.cpyVR(paquete.getId_sesion(), 
+                                                    paquete.getParam()[1],
+                                                    paquete.getParam()[2]); 
+                    return files_cpyrv;
+                    }catch(Exception x)
+                    {}
+                    
+                case "CPYVV":
+                    System.out.println("CPYVV ID: "+id);
+                    String filecpyvv="";
+                    if(paquete.getParam()[3].equals("-r"))
+                        filecpyvv = fs.cpyVV(paquete.getId_sesion(), 
+                                                paquete.getParam()[1], 
+                                                paquete.getParam()[2], 
+                                                true);
+                    else
+                        filecpyvv = fs.cpyVV(paquete.getId_sesion(), 
+                                                paquete.getParam()[1], 
+                                                paquete.getParam()[2], 
+                                                false);
+                    return filecpyvv;
+                case "MV":
+                    System.out.println("MV ID: "+id);
+                    String mv = "";
+                    if(paquete.getParam()[3].equals("-f"))
+                        mv = fs.mv(id, paquete.getParam()[1], paquete.getParam()[2], 
+                               true);
+                    else
+                        mv = fs.mv(id, paquete.getParam()[1], paquete.getParam()[2], 
+                               false);
+                    
+                    return mv;
                 default:
                     break;
         }
