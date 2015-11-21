@@ -85,7 +85,7 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                     return cat;
                     
                 case "CPYRV":
-                    System.out.println("CPYRV ID: ");
+                    System.out.println("CPYRV ID: "+id);
                     try{
                     String files_cpyrv = fs.cpyVR(paquete.getId_sesion(), 
                                                     paquete.getParam()[1],
@@ -93,6 +93,21 @@ public class MessageImpl extends UnicastRemoteObject implements Message {
                     return files_cpyrv;
                     }catch(Exception x)
                     {}
+                    
+                case "CPYVV":
+                    System.out.println("CPYVV ID: "+id);
+                    String filecpyvv="";
+                    if(paquete.getParam()[3].equals("-r"))
+                        filecpyvv = fs.cpyVV(paquete.getId_sesion(), 
+                                                paquete.getParam()[1], 
+                                                paquete.getParam()[2], 
+                                                true);
+                    else
+                        filecpyvv = fs.cpyVV(paquete.getId_sesion(), 
+                                                paquete.getParam()[1], 
+                                                paquete.getParam()[2], 
+                                                false);
+                    return filecpyvv;
                 case "MV":
                     System.out.println("MV ID: "+id);
                     String mv = "";
