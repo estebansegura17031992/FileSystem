@@ -2,7 +2,6 @@ package fileSystem;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.io.File;
 import java.io.FileReader;
@@ -142,7 +141,7 @@ public class FileSystem {
                 result.add("CAT: " + file + " es un directorio");
             else{
                 String content = "CAT: " + file + ":\n";
-                content += ((File)fs).getContent();
+                content += ((MyFile)fs).getContent();
                 result.add(content);
             }
         }
@@ -211,7 +210,7 @@ public class FileSystem {
         ClientSystem cs = this.fileSystems.get(user);
         String[] originRoute = routeOrigin.split("/");
         String originFilename = originRoute[originRoute.length-1];
-        Directory originParentDir = getLastDir(cs.root, originRoute);
+        Directory originParentDir = getLastDir(cs, originRoute);
         if(originParentDir == null)
             return "Imposible llegar al archivo o directorio";
         FileStruct originFile = originParentDir.find(originFilename);
@@ -220,7 +219,7 @@ public class FileSystem {
         
         String[] destinationRoute = routeDestination.split("/");
         String destinationDirectoryname = destinationRoute[destinationRoute.length-1];
-        Directory destinationDir = getLastDir(cs.root, destinationRoute);
+        Directory destinationDir = getLastDir(cs, destinationRoute);
         if(destinationDir == null)
             return "Imposible llegar al directorio";
         
@@ -277,7 +276,7 @@ public class FileSystem {
                 continue;
             }
             
-            if(fs instanceof File || force){
+            if(fs instanceof MyFile || force){
                 cs.current.deleteFile(file);
                 result.add("RM: " + file + " eliminado");
             }

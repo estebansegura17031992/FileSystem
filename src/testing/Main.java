@@ -17,6 +17,7 @@ public class Main {
 
     /**
      * @param args the command line arguments
+     * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
         // TODO code application logic here
@@ -121,19 +122,19 @@ public class Main {
         fs.cd("Me", "dir1");
         System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
         
-        System.out.println("CPVV:" +fs.cpyVV("Me", "/dir1/file1", "/file1", true));
-        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
-        fs.cd("Me", "..");
-        System.out.println("LS: "+Arrays.toString(fs.ls("Me")));
-        System.out.println("CPV: "+fs.cpyVR("Me", "/home/esteban/Desktop", "/"));
-        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
-        System.out.println("CAT: "+ Arrays.toString(fs.cat("Me", new String[]{"example.pl"})));
-        System.out.println("DU: " + fs.du("Me", ""));
-        System.out.println("RM: " + Arrays.toString(fs.rm("Me", new String[]{"file1"}, true)));
-        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
-        System.out.println("DU: " + fs.du("Me", ""));
-        fs.cd("Me", "..");
+//        System.out.println("CPVV:" +fs.cpyVV("Me", "/dir1/file1", "/file1", true));
+//        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+//        fs.cd("Me", "..");
+//        System.out.println("LS: "+Arrays.toString(fs.ls("Me")));
+//        System.out.println("CPV: "+fs.cpyVR("Me", "/home/esteban/Desktop", "/"));
+//        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+//        System.out.println("CAT: "+ Arrays.toString(fs.cat("Me", new String[]{"example.pl"})));
+//        System.out.println("DU: " + fs.du("Me", ""));
+//        System.out.println("RM: " + Arrays.toString(fs.rm("Me", new String[]{"file1"}, true)));
+//        System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
+//        System.out.println("DU: " + fs.du("Me", ""));
         
+        fs.cd("Me", "..");
         fs.file("Me", "file3", "nuevo archivo"); //13 char
         fs.test("Me");
         System.out.println("LS: " + Arrays.toString(fs.ls("Me")));
